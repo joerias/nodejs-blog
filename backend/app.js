@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const port = 8080;
 
+app.use(express.json());
+
 app.use(function (res, req, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Header", "content-type");
