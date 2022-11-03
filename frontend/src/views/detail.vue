@@ -1,18 +1,75 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, getCurrentInstance } from "vue";
 import NavBar from "@/components/nav-bar/index.vue";
+import router from "@/router";
+import axios from "axios";
+import { IAdd } from "@/types";
+import { showSuccessToast, showFailToast } from "vant";
 
 const globalProperties = getCurrentInstance()?.appContext.config.globalProperties;
 
 const id: string | null = globalProperties?.$common.getUrlQuery("id");
-const status: number = id ? 1 : 0;
-const username = ref("");
-const password = ref("");
-const checked = ref("");
+const editStatus: number = id ? 1 : 0;
+const tit = ref<string>("标题");
+const cont = ref<string>(
+	"Axios 是一个基于 promise 网络请求库，作用于node.js 和浏览器中。 它是 isomorphic 的(即同一套代码可以运行在浏览器和node.js中)。在服务端它使用原生 node.js http 模块, 而在客户端 (浏览端) 则使用 XMLHttpRequests。"
+);
+const auth = ref<string>("joe");
+const date = ref<string>("");
 
-onBeforeMount(() => {});
-const onSubmit = (values: any) => {
-	console.log("submit", values);
+onBeforeMount(() => {
+	if (id) getDetail(id);
+});
+
+const getDetail = async (id: string) => {
+	await axios.get(`/api/api/blog/detail?id=${id}`).then((res) => {
+		const {
+			data: {
+				code,
+				data: { title, content, author, createdAt },
+			},
+		} = res;
+		if (code === 200) {
+			tit.value = title;
+			cont.value = content;
+			auth.value = author;
+			const time = new Date(createdAt);
+			const y = time.getFullYear();
+			const m = time.getMonth() + 1 < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1;
+			const d = time.getDate() < 10 ? `0${time.getDate()}` : time.getDate();
+			date.value = `${y}-${m}-${d}`;
+		}
+	});
+};
+
+const onSubmit = (values: IAdd) => {
+	post(values);
+};
+
+const post = async (obj: IAdd) => {
+	if (id) {
+		await axios.post(`/api/api/blog/update?id=${id}`, obj).then((res) => {
+			const {
+				data: { code, message },
+			} = res;
+			if (code === 200) {
+				showSuccessToast(message);
+				router.push("/list");
+			} else {
+				showFailToast(message);
+			}
+		});
+	} else {
+		await axios.post("/api/api/blog/add", obj).then((res) => {
+			const {
+				data: { code },
+			} = res;
+			if (code === 200) {
+				showSuccessToast("创建成功");
+				router.push("/list");
+			}
+		});
+	}
 };
 </script>
 
@@ -21,37 +78,38 @@ const onSubmit = (values: any) => {
 	<van-form @submit="onSubmit">
 		<van-cell-group inset>
 			<van-field
-				v-model="username"
-				name="标题"
+				v-model="tit"
+				name="title"
 				label="标题"
 				placeholder="请填写标题"
 				:rules="[{ required: true, message: '请填写标题' }]"
-				:disabled="!status"
 			/>
-			<van-field name="radio" label="用户" :disabled="!status">
+			<van-field name="author" label="用户">
 				<template #input>
-					<van-radio-group v-model="checked" direction="horizontal" :disabled="!status">
-						<van-radio name="1">单选框 1</van-radio>
-						<van-radio name="2">单选框 2</van-radio>
+					<van-radio-group v-model="auth" direction="horizontal">
+						<van-radio name="joe">joe</van-radio>
+						<van-radio name="jim">jim</van-radio>
 					</van-radio-group>
 				</template>
 			</van-field>
 			<van-field
-				v-model="password"
+				v-model="cont"
 				type="textarea"
 				autosize
 				rows="5"
 				show-word-limit
 				maxlength="50"
-				name="内容"
+				name="content"
 				label="内容"
 				placeholder="请填写内容"
 				:rules="[{ required: true, message: '请填写内容' }]"
-				:disabled="!status"
 			/>
+			<van-field v-if="editStatus" disabled v-model="date" label="日期" />
 		</van-cell-group>
-		<div v-if="status" style="margin: 16px">
-			<van-button round block type="primary" native-type="submit"> 提交 </van-button>
+		<div style="margin: 16px">
+			<van-button round block type="primary" native-type="submit">
+				{{ editStatus ? "修改" : "保存" }}
+			</van-button>
 		</div>
 	</van-form>
 </template>
