@@ -22,6 +22,13 @@ const list = ref<any[]>([
 const loading = ref<boolean>(false);
 const finished = ref<boolean>(false);
 const onLoad = () => {
+	return fetch("localhost:8080/api/blog/list", { method: "GET" })
+		.then((res) => {
+			console.log(res.json());
+		})
+		.catch((err) => {
+			console.log(err);
+		});
 	// setTimeout(() => {
 	// 	for (let i = 0; i < 10; i++) {
 	// 		list.value.push(list.value.length + 1);
@@ -34,6 +41,9 @@ const onLoad = () => {
 	// 	}
 	// }, 1000);
 };
+// const postData = (url, method, data)=>{
+// 	return fetch
+// }
 
 const handleLink = (id: number) => {
 	router.push(`/detail?id=${id}`);

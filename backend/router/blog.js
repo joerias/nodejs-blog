@@ -22,13 +22,32 @@ router.get("/detail", (req, res) => {
 	});
 });
 
-router.post("/new", (req, res) => {
-	console.log(req.body);
-	// return createBlog(req.query).then((data) => {
-	// 	if (data) {
-	// 		res.send(new SuccessModel(data));
-	// 	}
-	// });
+router.post("/add", (req, res) => {
+	return createBlog(req.body).then((data) => {
+		if (data) {
+			res.send(new SuccessModel(data));
+		}
+	});
+});
+
+router.post("/update", (req, res) => {
+	return updateBlog(req.query.id, req.body).then((data) => {
+		if (data) {
+			res.send(new SuccessModel("更新博客成功"));
+		} else {
+			res.send(new ErrorModel("更新博客失败"));
+		}
+	});
+});
+
+router.post("/delete", (req, res) => {
+	return deleteBlog(req.query.id, req.query.author).then((data) => {
+		if (data) {
+			res.send(new SuccessModel("删除博客成功"));
+		} else {
+			res.send(new ErrorModel("删除博客失败"));
+		}
+	});
 });
 
 module.exports = router;
