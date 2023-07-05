@@ -5,5 +5,20 @@
 		"activityBar.background": "#111350",
 		"titleBar.activeBackground": "#2c2f7a",
 		"titleBar.activeForeground": "#FEFCFE"
-	}
+	},
+	"sqltools.connections": [
+		{
+			"mysqlOptions": {
+				"authProtocol": "default",
+				"enableSsl": "Disabled"
+			},
+			"previewLimit": 50,
+			"server": "localhost",
+			"port": 3306,
+			"driver": "MySQL",
+			"name": "blogs",
+			"database": "blogs",
+			"username": "root"
+		}
+	]
 }
