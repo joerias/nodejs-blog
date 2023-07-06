@@ -25,13 +25,20 @@ service.interceptors.response.use(
 	}
 );
 
-export const req = <T>(method: "get" | "post", url: string, params?: any, timeout?: number) => {
+export const req = <T>(
+	method: "get" | "post",
+	url: string,
+	params?: Object,
+	timeout?: number,
+	config?: AxiosRequestConfig
+) => {
 	return new Promise<IRes<T>>((resolve, reject) => {
 		service({
 			method,
 			url,
-			data: params,
+			[method === "get" ? "params" : "data"]: params,
 			timeout,
+			...config,
 		})
 			.then((res) => {
 				const { data } = res;
