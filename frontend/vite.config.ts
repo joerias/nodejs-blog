@@ -13,6 +13,11 @@ export default defineConfig({
 	},
 	plugins: [vue()],
 	css: {
+		preprocessorOptions: {
+			less: {
+				additionalData: '@import "./src/assets/less/index.less";',
+			},
+		},
 		postcss: {
 			plugins: [
 				postcsspxtovw({

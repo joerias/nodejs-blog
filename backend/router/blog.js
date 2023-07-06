@@ -41,7 +41,7 @@ router.post("/update", (req, res) => {
 });
 
 router.post("/delete", (req, res) => {
-	return deleteBlog(req.query.id, req.query.author).then((data) => {
+	return deleteBlog(req.query.id).then((data) => {
 		if (data) {
 			res.send(new SuccessModel("删除博客成功"));
 		} else {

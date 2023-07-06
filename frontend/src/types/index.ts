@@ -1,13 +1,17 @@
-export interface IListData {
+export interface IItemData {
 	id: number;
 	title: string;
 	author: string;
 	content: string;
-	date: number;
+	createdAt: number;
+	date: string;
+	state: number;
 }
 
-export interface IAdd {
+export interface IAddParams {
 	title: string;
 	author: string;
 	content: string;
+	createdAt: number;
+	date: string;
 }

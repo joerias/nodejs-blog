@@ -15,9 +15,8 @@ const getDetail = (id) => {
 };
 
 const createBlog = (blogData = {}) => {
-	const { title, content, author } = blogData;
-	const createdAt = Date.now();
-	const sql = `insert into blog (title, content, author, createdAt) values ('${title}', '${content}', '${author}', '${createdAt}')`;
+	const { title, content, author, createdAt, date } = blogData;
+	const sql = `insert into blog (title, content, author, createdAt, date) values ('${title}', '${content}', '${author}', '${createdAt}', '${date}')`;
 	return execSQL(sql).then((insertedResult) => {
 		return {
 			id: insertedResult.insertId,
@@ -36,8 +35,8 @@ const updateBlog = (id, blogData = {}) => {
 	});
 };
 
-const deleteBlog = (id, author) => {
-	const sql = `delete from blog where id=${id} and author='${author}'`;
+const deleteBlog = (id) => {
+	const sql = `delete from blog where id=${id}`;
 	return execSQL(sql).then((deleteResult) => {
 		if (deleteResult.affectedRows > 0) {
 			return true;

@@ -1,31 +1,31 @@
 <script setup lang="ts">
+defineOptions({
+	name: "list",
+});
+
 import { ref } from "vue";
 import NavBar from "@/components/nav-bar/index.vue";
 import router from "@/router";
-import axios from "axios";
-import { IListData } from "@/types";
-import { showSuccessToast, showFailToast } from "vant";
+import { IItemData } from "@/types";
+import { showSuccessToast } from "vant";
+import { list, del } from "@/config/api";
 
-const list = ref<IListData[]>([]);
+const listData = ref<IItemData[]>([]);
 const loading = ref<boolean>(false);
 const finished = ref<boolean>(false);
 const onLoad = () => {
 	getList();
-	// 加载状态结束
-	loading.value = false;
-	// 数据全部加载完成
-	finished.value = true;
 };
 
 const getList = async () => {
-	await axios.get("/api/api/blog/list").then((res) => {
-		const {
-			data: { code, data },
-		} = res;
-		if (code === 200) {
-			list.value = data;
-		}
-	});
+	loading.value = true;
+	try {
+		const { data } = await list();
+		listData.value = data;
+	} finally {
+		loading.value = true;
+		finished.value = true;
+	}
 };
 
 const handleLink = (id: number) => {
@@ -36,31 +36,27 @@ const handleCreate = () => {
 	router.push("/detail");
 };
 
-const handleDel = async (obj: IListData) => {
-	await axios.post(`/api/api/blog/delete?id=${obj.id}&author=${obj.author}`).then((res) => {
-		const {
-			data: { code, message },
-		} = res;
-		if (code === 200) {
-			showSuccessToast(message);
-			getList();
-		} else {
-			showFailToast(message);
-		}
-	});
+const handleDel = async (obj: IItemData) => {
+	try {
+		const { message } = await del(obj.id);
+		showSuccessToast(message);
+		getList();
+	} finally {
+	}
 };
 </script>
 
 <template>
-	<NavBar title="Blog">
+	<nav-bar title="List">
 		<template #right>
 			<van-icon name="plus" @click="handleCreate" />
 		</template>
-	</NavBar>
+	</nav-bar>
+
 	<van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
-		<van-cell v-for="(o, i) in list" :key="i" @click="handleLink(o.id)">
+		<van-cell v-for="(o, i) in listData" :key="i" @click="handleLink(o.id)">
 			<van-swipe-cell>
-				<van-cell>
+				<div class="con">
 					<div class="hd">
 						<div class="tit">
 							{{ o.title }}
@@ -69,12 +65,12 @@ const handleDel = async (obj: IListData) => {
 							{{ o.date }}
 						</div>
 					</div>
-					<div class="cont">
+					<div class="summary">
 						{{ o.content }}
 					</div>
-				</van-cell>
+				</div>
 				<template #right>
-					<van-button square type="danger" text="删除" @click="handleDel(o)" />
+					<van-button class="btn-del" square type="danger" text="删除" @click="handleDel(o)" />
 				</template>
 			</van-swipe-cell>
 		</van-cell>
@@ -82,7 +78,12 @@ const handleDel = async (obj: IListData) => {
 </template>
 
 <style lang="less" scoped>
-@import "@/assets/less/variable.less";
+.van-cell {
+	padding: 0;
+}
+.con {
+	padding: 30px 30px 20px;
+}
 .hd {
 	display: flex;
 	justify-content: space-between;
@@ -91,21 +92,25 @@ const handleDel = async (obj: IListData) => {
 }
 .tit {
 	color: #666;
-	flex: 0 0 80%;
+	flex: 0 0 70%;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 .date {
-	font-size: 26px;
-	flex: 0 0 20%;
+	font-size: 30px;
+	flex: 0 0 30%;
 	color: #ccc;
+	text-align: right;
 }
-.cont {
+.summary {
 	line-height: 40px;
 	max-height: 80px;
 	overflow: hidden;
-	margin: 10px 0;
+	margin: 15px 0 0;
 	color: #aaa;
+}
+.btn-del {
+	height: 100%;
 }
 </style>
